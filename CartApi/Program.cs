@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -19,4 +22,28 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapGet("/carts/{userId}", async (string userId, IDistributedCache redis) => 
+{
+    var data = await redis.GetStringAsync(userId);
+
+    if (string.IsNullOrEmpty(data)) return null;
+
+    var cart = JsonSerializer.Deserialize<Cart>(data, new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = false
+    });
+
+    return cart;
+});
+
+app.MapPost("/carts", async (Cart cart, IDistributedCache redis) =>
+{
+    await redis.SetStringAsync(cart.UserId, JsonSerializer.Serialize(cart));
+    return true;
+});
+
 app.Run();
+
+record Cart(string UserId, List<Product> Product);
+record Product(string Name, int Amount, decimal UnitPrice);
