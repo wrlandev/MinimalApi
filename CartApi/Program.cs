@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
+using WebHost.Customization;
 
 var builder = WebApplication.CreateBuilder(args);
 
