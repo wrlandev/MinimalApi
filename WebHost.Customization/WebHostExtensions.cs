@@ -18,7 +18,7 @@ namespace WebHost.Customization
         }
         public static void AddServiceAuthenticator(this IServiceCollection services, IConfiguration configuration)
         {
-            var key = Encoding.ASCII.GetBytes(configuration["Autenticacao:Key"]);
+            var key = Encoding.ASCII.GetBytes(configuration["Authentication:Key"]);
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

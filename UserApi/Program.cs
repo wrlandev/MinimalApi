@@ -26,7 +26,7 @@ app.MapPost("connect/token", (Authentication authentication, IConfiguration conf
 {
     if(authentication.user == "client" && authentication.password == "123")
     {
-        return Token.Create(configuration, "client");
+        return Token.Create(configuration, "Client");
     }
 
     return "user not found";

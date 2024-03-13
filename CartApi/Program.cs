@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddServiceSdk(builder.Configuration);
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetValue<string>("CacheSettings:ConnectionString");
@@ -24,7 +25,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/carts/{userId}", async (string userId, IDistributedCache redis) => 
+app.MapGet("/carts/{userId}", async (string userId, IDistributedCache redis) =>
 {
     var data = await redis.GetStringAsync(userId);
 
@@ -36,13 +37,15 @@ app.MapGet("/carts/{userId}", async (string userId, IDistributedCache redis) =>
     });
 
     return cart;
-});
+
+}).RequireAuthorization("Client");
 
 app.MapPost("/carts", async (Cart cart, IDistributedCache redis) =>
 {
     await redis.SetStringAsync(cart.UserId, JsonSerializer.Serialize(cart));
     return true;
-});
+
+}).RequireAuthorization("Client");
 
 app.Run();
 
